@@ -1,0 +1,94 @@
+networks:
+    frontend-net:
+        name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}-frontend-net
+        driver: bridge
+    backend-net:
+        name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}-backend-net
+        driver: bridge
+
+volumes:
+  postgres-data:
+    name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}-postgres-data
+
+  redis-data:
+    name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}-redis-data
+
+services:
+      postgres:
+        container_name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_postgres
+        image: postgres:16
+        hostname: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_postgres
+        restart: unless-stopped
+        env_file:
+          - ./postgres.env
+        volumes:
+          - postgres-data:/var/lib/postgresql/data
+          - ../backup/postgres/init:/docker-entrypoint-initdb.d:ro
+        networks:
+          - backend-net
+        healthcheck:
+          test: 
+            - CMD-SHELL
+            - pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
+          interval: 10s
+          timeout: 5s
+          retries: 5
+          start_period: 10s  
+
+      redis:
+        container_name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_redis
+        image: redis:7
+        hostname: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_redis
+        command: 
+          - redis-server
+          - /usr/local/etc/redis/redis.conf
+        restart: unless-stopped
+        volumes:
+          - redis-data:/data
+          - ../redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+        networks:
+          - backend-net
+        healthcheck:
+          test: ["CMD", "redis-cli", "ping"]
+          interval: 10s
+          timeout: 5s
+          retries: 5  
+
+      backend-app:
+        build:
+          context: ../backend
+          dockerfile: Dockerfile
+          args:
+            PROJECT_NAME: ${PROJECT_NAME}
+            BACKEND_IMAGE_VERSION: ${BACKEND_IMAGE_VERSION}
+        image: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_backend:${BACKEND_IMAGE_VERSION}
+        restart: unless-stopped
+        env_file:
+          - ./backend.env
+        depends_on:
+          postgres:
+            condition: service_healthy
+          redis:
+            condition: service_healthy
+        networks:
+          - backend-net
+
+      frontend-app:
+        build:
+          context: ../
+          dockerfile: ./frontend/Dockerfile
+          args:
+            PROJECT_NAME: ${PROJECT_NAME}
+            FRONTEND_IMAGE_VERSION: ${FRONTEND_IMAGE_VERSION}
+        image: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_frontend:${FRONTEND_IMAGE_VERSION}
+        restart: unless-stopped
+        ports:
+          - "80:80"
+        env_file:
+          - ./frontend.env
+        depends_on:
+          backend-app:
+            condition: service_healthy
+        networks:
+          - frontend-net
+          - backend-net    
