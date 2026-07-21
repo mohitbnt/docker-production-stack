@@ -4,15 +4,14 @@ FROM python:3.12-slim
 # Build Arguments
 # =============================================================================
 
-ARG PROJECT_NAME
 ARG IMAGE_VERSION
 
 # =============================================================================
 # Image Metadata
 # =============================================================================
 
-LABEL org.opencontainers.image.title="${PROJECT_NAME} Backend" \
-      org.opencontainers.image.description="Flask backend for ${PROJECT_NAME}" \
+LABEL org.opencontainers.image.title="OpsPortal Backend" \
+      org.opencontainers.image.description="Flask backend for OpsPortal" \
       org.opencontainers.image.version="${IMAGE_VERSION}" \
       org.opencontainers.image.authors="Mohit Kumar"
 

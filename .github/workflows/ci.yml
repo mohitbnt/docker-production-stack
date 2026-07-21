@@ -19,7 +19,6 @@ jobs:
         working-directory: compose
 
     env:
-      PROJECT_NAME: ${{ vars.PROJECT_NAME }}
       ENVIRONMENT_NAME: ${{ vars.ENVIRONMENT_NAME }}
       IMAGE_VERSION: ${{ github.sha }}
 
@@ -32,6 +31,8 @@ jobs:
 
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
     steps:
       - name: Checkout repository
@@ -46,12 +47,17 @@ jobs:
           cp backend.env.example backend.env
           cp frontend.env.example frontend.env
           cp postgres.env.example postgres.env
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: validate docker-compose files
         run: docker compose -f docker-compose.yaml config
 
-      - name: Build backend image
-        run: docker compose build backend-app
+      - name: Build images
+        run: docker compose build
 
-      - name: Build frontend image
-        run: docker compose build frontend-app      
+      - name: Push images
+        run: docker compose push

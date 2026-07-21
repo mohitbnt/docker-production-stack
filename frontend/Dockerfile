@@ -4,11 +4,10 @@
 
 FROM node:22-alpine AS builder
 
-ARG PROJECT_NAME
 ARG IMAGE_VERSION
 
-LABEL org.opencontainers.image.title="${PROJECT_NAME} Frontend"
-LABEL org.opencontainers.image.description="React/Vite build for ${PROJECT_NAME}"
+LABEL org.opencontainers.image.title="OpsPortal Frontend"
+LABEL org.opencontainers.image.description="React/Vite build for OpsPortal"
 LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
 LABEL org.opencontainers.image.authors="Mohit Kumar"
 
@@ -33,9 +32,7 @@ RUN npm run build
 
 FROM nginx:1.28-alpine
 
-ARG PROJECT_NAME
-
-LABEL org.opencontainers.image.title="${PROJECT_NAME} Frontend Runtime"
+LABEL org.opencontainers.image.title="OpsPortal Frontend Runtime"
 
 # Remove default web content
 RUN rm -rf /usr/share/nginx/html/*

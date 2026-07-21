@@ -1,23 +1,23 @@
 networks:
     frontend-net:
-        name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}-frontend-net
+        name: ${ENVIRONMENT_NAME}_opsportal-frontend-net
         driver: bridge
     backend-net:
-        name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}-backend-net
+        name: ${ENVIRONMENT_NAME}_opsportal-backend-net
         driver: bridge
 
 volumes:
   postgres-data:
-    name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}-postgres-data
+    name: ${ENVIRONMENT_NAME}_opsportal-postgres-data
 
   redis-data:
-    name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}-redis-data
+    name: ${ENVIRONMENT_NAME}_opsportal-redis-data
 
 services:
       postgres:
-        container_name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_postgres
+        container_name: ${ENVIRONMENT_NAME}_opsportal_postgres
         image: postgres:16
-        hostname: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_postgres
+        hostname: ${ENVIRONMENT_NAME}_opsportal_postgres
         restart: unless-stopped
         env_file:
           - ./postgres.env
@@ -36,9 +36,9 @@ services:
           start_period: 10s  
 
       redis:
-        container_name: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_redis
+        container_name: ${ENVIRONMENT_NAME}_opsportal_redis
         image: redis:7
-        hostname: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_redis
+        hostname: ${ENVIRONMENT_NAME}_opsportal_redis
         command: 
           - redis-server
           - /usr/local/etc/redis/redis.conf
@@ -59,9 +59,8 @@ services:
           context: ../backend
           dockerfile: Dockerfile
           args:
-            PROJECT_NAME: ${PROJECT_NAME}
-            BACKEND_IMAGE_VERSION: ${IMAGE_VERSION}
-        image: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_backend:${IMAGE_VERSION}
+            IMAGE_VERSION: ${IMAGE_VERSION}
+        image: ${DOCKERHUB_USERNAME}/opsportal-backend:${IMAGE_VERSION}
         restart: unless-stopped
         env_file:
           - ./backend.env
@@ -78,9 +77,8 @@ services:
           context: ../
           dockerfile: ./frontend/Dockerfile
           args:
-            PROJECT_NAME: ${PROJECT_NAME}
-            FRONTEND_IMAGE_VERSION: ${IMAGE_VERSION}
-        image: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_frontend:${IMAGE_VERSION}
+            IMAGE_VERSION: ${IMAGE_VERSION}
+        image: ${DOCKERHUB_USERNAME}/opsportal-frontend:${IMAGE_VERSION}
         restart: unless-stopped
         ports:
           - "80:80"
