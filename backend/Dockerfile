@@ -5,7 +5,7 @@ FROM python:3.12-slim
 # =============================================================================
 
 ARG PROJECT_NAME
-ARG BACKEND_IMAGE_VERSION
+ARG IMAGE_VERSION
 
 # =============================================================================
 # Image Metadata
@@ -13,7 +13,7 @@ ARG BACKEND_IMAGE_VERSION
 
 LABEL org.opencontainers.image.title="${PROJECT_NAME} Backend" \
       org.opencontainers.image.description="Flask backend for ${PROJECT_NAME}" \
-      org.opencontainers.image.version="${BACKEND_IMAGE_VERSION}" \
+      org.opencontainers.image.version="${IMAGE_VERSION}" \
       org.opencontainers.image.authors="Mohit Kumar"
 
 # =============================================================================

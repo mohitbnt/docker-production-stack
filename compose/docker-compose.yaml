@@ -60,8 +60,8 @@ services:
           dockerfile: Dockerfile
           args:
             PROJECT_NAME: ${PROJECT_NAME}
-            BACKEND_IMAGE_VERSION: ${BACKEND_IMAGE_VERSION}
-        image: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_backend:${BACKEND_IMAGE_VERSION}
+            BACKEND_IMAGE_VERSION: ${IMAGE_VERSION}
+        image: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_backend:${IMAGE_VERSION}
         restart: unless-stopped
         env_file:
           - ./backend.env
@@ -79,8 +79,8 @@ services:
           dockerfile: ./frontend/Dockerfile
           args:
             PROJECT_NAME: ${PROJECT_NAME}
-            FRONTEND_IMAGE_VERSION: ${FRONTEND_IMAGE_VERSION}
-        image: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_frontend:${FRONTEND_IMAGE_VERSION}
+            FRONTEND_IMAGE_VERSION: ${IMAGE_VERSION}
+        image: ${ENVIRONMENT_NAME}_${PROJECT_NAME}_frontend:${IMAGE_VERSION}
         restart: unless-stopped
         ports:
           - "80:80"

@@ -5,11 +5,11 @@
 FROM node:22-alpine AS builder
 
 ARG PROJECT_NAME
-ARG FRONTEND_IMAGE_VERSION
+ARG IMAGE_VERSION
 
 LABEL org.opencontainers.image.title="${PROJECT_NAME} Frontend"
 LABEL org.opencontainers.image.description="React/Vite build for ${PROJECT_NAME}"
-LABEL org.opencontainers.image.version="${FRONTEND_IMAGE_VERSION}"
+LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
 LABEL org.opencontainers.image.authors="Mohit Kumar"
 
 WORKDIR /app
@@ -34,7 +34,6 @@ RUN npm run build
 FROM nginx:1.28-alpine
 
 ARG PROJECT_NAME
-ARG FRONTEND_IMAGE_VERSION
 
 LABEL org.opencontainers.image.title="${PROJECT_NAME} Frontend Runtime"
 
