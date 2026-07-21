@@ -48,7 +48,7 @@ jobs:
           cp postgres.env.example postgres.env
 
       - name: validate docker-compose files
-        run: docker compose -f docker-compose.yml config
+        run: docker compose -f docker-compose.yaml config
 
       - name: Build backend image
         run: docker compose build backend-app
