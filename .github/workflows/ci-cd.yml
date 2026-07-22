@@ -84,8 +84,6 @@ jobs:
           host: ${{ vars.EC2_HOST }}
           username: ${{ vars.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script_stop_if_error: true
-          script_timeout: 600
           script: |
             set -e
             cd /opt/opsportal
