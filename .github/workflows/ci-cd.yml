@@ -87,8 +87,8 @@ jobs:
             --parameters '{
               "commands": [
                 "set -e",
-                "mkdir -p ~/OpsPortal",
-                "cd ~/OpsPortal",
+                "mkdir -p /opt/OpsPortal",
+                "cd /opt/OpsPortal",
                 "git clone https://github.com/mohitbnt/OpsPortal.git .",
                 "cd compose",
                 "cp .env.example .env",
