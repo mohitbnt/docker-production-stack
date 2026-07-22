@@ -74,7 +74,7 @@ jobs:
           role-to-assume: ${{ vars.IAM_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
       - name: Verify AWS Identity
-        uses: aws sts get-caller-identity
+        run: aws sts get-caller-identity
       - name: Deploy to EC2 instance via SSM
         run: |
           aws ssm send-command \
