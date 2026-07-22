@@ -77,7 +77,7 @@ jobs:
           role-to-assume: ${{ vars.IAM_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
           role-session-name: GitHubActions-OpsPortal-Deploy
-          
+
       - name: Deploy to EC2 instance via SSM
         run: |
           aws ssm send-command \
@@ -87,9 +87,13 @@ jobs:
             --parameters '{
               "commands": [
                 "set -e",
-                "mkdir -p /opt/opsportal",
-                "cd /opt/opsportal",
-                "git pull origin main",
+                "mkdir -p ~/OpsPosrtal",
+                "cd ~/OpsPosrtal"
+                "if [ ! -d ".git" ]; then
+                    git clone https://github.com/mohitbnt/OpsPortal.git .
+                 else
+                    git pull origin main
+                fi",
                 "cd compose",
                 "cp .env.example .env",
                 "cp backend.env.example backend.env",
