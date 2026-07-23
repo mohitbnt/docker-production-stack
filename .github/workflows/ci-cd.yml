@@ -1,4 +1,4 @@
-name: Continuous Integration / Continuous Deployment
+name: Docker Production Pipeline
 
 on:
   pull_request:
@@ -11,10 +11,14 @@ on:
 permissions:
   contents: read
   id-token: write
+  security-events: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     defaults:
       run:
         working-directory: compose
@@ -60,6 +64,36 @@ jobs:
       - name: Build images
         run: docker compose build
 
+      - name: Scan Backend Image
+        uses: aquasecurity/trivy-action@v0
+        with:
+          scan-ref: "${{ secrets.DOCKERHUB_USERNAME }}/opsportal-backend:${{ github.sha }}"
+          format: sarif
+          output: backend-results.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 0
+
+      - name: Scan Frontend Image
+        uses: aquasecurity/trivy-action@v0
+        with:
+            scan-ref: "${{ secrets.DOCKERHUB_USERNAME }}/opsportal-frontend:${{ github.sha }}"
+            format: sarif
+            output: frontend-results.sarif
+            severity: HIGH,CRITICAL
+            ignore-unfixed: true
+            exit-code: 0
+            
+      - name: Upload Backend Scan
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: backend-results.sarif
+
+      - name: Upload Frontend Scan
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: frontend-results.sarif            
+
       - name: Push images
         run: docker compose push
 
@@ -90,7 +124,7 @@ jobs:
           cd /opt/Opsportal
 
           if [ ! -d ".git" ]; then
-              git clone https://github.com/mohitbnt/OpsPortal.git .
+              git clone https://github.com/mohitbnt/docker-production-stack.git .
           else
               git fetch origin
               git reset --hard origin/main
@@ -113,13 +147,15 @@ jobs:
           docker compose pull
           docker compose up -d --remove-orphans
           docker image prune -f
+          docker compose ps
+          docker compose logs --tail=20
           EOF
           )
 
           # 2. Package the execution script into a valid JSON payload using jq
           PAYLOAD=$(jq -n --arg cmd "$EXECUTION_SCRIPT" '{commands: [$cmd], executionTimeout: ["600"]}')
 
-          echo "🚀 Sending deployment command via AWS SSM..."
+          echo "Sending deployment command via AWS SSM..."
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
