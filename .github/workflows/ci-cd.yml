@@ -134,7 +134,7 @@ jobs:
           # 3. Wait for execution to finish on the server
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
-            --instance-id "$INSTANCE_ID"
+            --instance-id "$INSTANCE_ID" || echo "Waiter finished with errors or command failed. Fetching logs..."
 
           # 4. Gather execution metrics and outputs
           INVOCATION_JSON=$(aws ssm get-command-invocation \
